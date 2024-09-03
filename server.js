@@ -1,12 +1,14 @@
 import express from 'express';
-import { promisify } from 'util';
+import routes from './routes/index';
 
-const HOST = '0.0.0.0';
-const PORT = process.env.PORT || '5000';
 const app = express();
+const port = process.env.PORT || 5000;
 
+app.use(express.json());
+app.use('/', routes);
 
-
-app.listen(PORT, HOST, () => {
-    console.log(`Server is live at ${HOST}:${PORT}`);
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
+
+export default app;
