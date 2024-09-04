@@ -1,7 +1,6 @@
 import sha1 from 'sha1';
-import dbClient from '../utils/db';
-import redisClient from '../utils/redis';
 import { ObjectId } from 'mongodb';
+import redisClient from '../utils/redis';
 import userUtils from '../utils/user';
 
 class UsersController {
@@ -23,7 +22,7 @@ class UsersController {
     }
 
     const hashedPassword = sha1(password);
-    const result = await usersCollection.insertOne({
+    const result = await userUtils.setUser({
       email,
       password: hashedPassword,
     });
@@ -35,23 +34,22 @@ class UsersController {
   }
 
   static async getMe(req, res) {
-    const token = req.get('X-Token')
-    if (!token){
-        return res.status(401).json({ error: 'Unauthorized' });
+    const token = req.get('X-Token');
+    if (!token) {
+      return res.status(401).json({ error: 'Unauthorized' });
     }
-    const key = `auth_${token}`
+    const key = `auth_${token}`;
     const exist = await redisClient.get(key);
-    if (!exist){
-        return res.status(401).json({ error: 'Unauthorized' });
-    }
-
-    const existingUser = await userUtils.getUser({ _id: ObjectId(exist), });
-    if (!existingUser){
+    if (!exist) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    return res.status(200).json({ id: exist , email: existingUser.email});
+    const existingUser = await userUtils.getUser({ _id: ObjectId(exist) });
+    if (!existingUser) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
 
+    return res.status(200).json({ id: exist, email: existingUser.email });
   }
 }
 
