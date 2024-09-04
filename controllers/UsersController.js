@@ -2,6 +2,7 @@ import sha1 from 'sha1';
 import dbClient from '../utils/db';
 import redisClient from '../utils/redis';
 import { ObjectId } from 'mongodb';
+import userUtils from '../utils/user';
 
 class UsersController {
   static async postNew(req, res) {
@@ -15,8 +16,7 @@ class UsersController {
       return res.status(400).json({ error: 'Missing password' });
     }
 
-    const usersCollection = dbClient.db.collection('users');
-    const existingUser = await usersCollection.findOne({ email });
+    const existingUser = await userUtils.getUser({ email });
 
     if (existingUser) {
       return res.status(400).json({ error: 'Already exist' });
@@ -45,8 +45,7 @@ class UsersController {
         return res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const usersCollection = dbClient.db.collection('users');
-    const existingUser = await usersCollection.findOne({ _id: ObjectId(exist), });
+    const existingUser = await userUtils.getUser({ _id: ObjectId(exist), });
     if (!existingUser){
       return res.status(401).json({ error: 'Unauthorized' });
     }
