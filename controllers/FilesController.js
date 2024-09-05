@@ -2,9 +2,11 @@ import { ObjectId } from 'mongodb';
 import Queue from 'bull';
 import { promises as fsPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import mime from 'mime-types';
 import dbClient from '../utils/db';
 import userUtils from '../utils/user';
 import valid from '../utils/valid';
+import files from '../utils/files';
 
 const FOLDER_PATH = process.env.FOLDER_PATH || '/tmp/files_manager';
 
@@ -157,6 +159,62 @@ class FilesController {
     });
 
     return res.status(200).send(fileList);
+  }
+
+  static async putPublish(req, res) {
+    const { error, code, updatedFile } = await files.publishOR(
+      req,
+      true,
+    );
+
+    if (error) return res.status(code).send({ error });
+
+    return res.status(code).send(updatedFile);
+  }
+
+  static async putUnpublish(req, res) {
+    const { error, code, updatedFile } = await files.publishOR(
+      req,
+      false,
+    );
+
+    if (error) return res.status(code).send({ error });
+
+    return res.status(code).send(updatedFile);
+  }
+
+  static async getFile(req, res) {
+    const user = await userUtils.getUserFromReq(req);
+    if (!user) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+    const userId = user._id;
+    const { id: fileId } = req.params;
+    const size = req.query.size || 0;
+
+    if (!valid.idOkay(fileId)) { return res.status(404).send({ error: 'Not found' }); }
+
+    const file = await dbClient.db.collection('files').findOne({
+      _id: ObjectId(fileId),
+    });
+
+    if (!file || !files.isOwnerAndPublic(file, userId)) { return res.status(404).send({ error: 'Not found' }); }
+
+    if (file.type === 'folder') {
+      return res
+        .status(400)
+        .send({ error: "A folder doesn't have content" });
+    }
+
+    const { error, code, data } = await files.getFileData(file, size);
+
+    if (error) return res.status(code).send({ error });
+
+    const mimeType = mime.contentType(file.name);
+
+    res.setHeader('Content-Type', mimeType);
+
+    return res.status(200).send(data);
   }
 }
 
