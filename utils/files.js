@@ -52,7 +52,7 @@ const files = {
 
   isOwnerAndPublic(file, userId) {
     if (
-      (!file.isPublic && !userId)
+      (!file.isPublic && !userId._id)
       || (userId && file.userId.toString() !== userId && !file.isPublic)
     ) { return false; }
 

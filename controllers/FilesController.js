@@ -185,10 +185,7 @@ class FilesController {
 
   static async getFile(req, res) {
     const user = await userUtils.getUserFromReq(req);
-    if (!user) {
-      return res.status(401).json({ error: 'Unauthorized' });
-    }
-    const userId = user._id;
+    // const userId = user._id;
     const { id: fileId } = req.params;
     const size = req.query.size || 0;
 
@@ -198,7 +195,7 @@ class FilesController {
       _id: ObjectId(fileId),
     });
 
-    if (!file || !files.isOwnerAndPublic(file, userId)) { return res.status(404).send({ error: 'Not found' }); }
+    if (!file || !files.isOwnerAndPublic(file, user)) { return res.status(404).send({ error: 'Not found' }); }
 
     if (file.type === 'folder') {
       return res
