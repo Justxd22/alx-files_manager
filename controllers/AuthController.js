@@ -12,6 +12,8 @@ class AuthController {
     const base64Token = token.slice(6).trim();
     const decodedString = Buffer.from(base64Token, 'base64').toString('utf-8');
     const [email, password] = decodedString.split(':');
+
+    if (!email || !password) { return res.status(401).send({ error: 'Unauthorized' }); }
     const existingUser = await userUtils.getUser({ email });
 
     if (!existingUser) {
