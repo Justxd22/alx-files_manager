@@ -2,7 +2,6 @@ import { ObjectId } from 'mongodb';
 import Queue from 'bull';
 import { promises as fsPromises } from 'fs';
 import { v4 as uuidv4 } from 'uuid';
-import redisClient from '../utils/redis';
 import dbClient from '../utils/db';
 import userUtils from '../utils/user';
 import valid from '../utils/valid';
@@ -92,8 +91,6 @@ class FilesController {
 
     return res.status(201).send(newFile);
   }
-
-
 }
 
 export default FilesController;
