@@ -17,11 +17,11 @@ class AuthController {
     const existingUser = await userUtils.getUser({ email });
 
     if (!existingUser) {
-      return res.status(400).json({ error: 'No user found' });
+      return res.status(401).send({ error: 'Unauthorized' });
     }
 
     if (!sha1(password) === existingUser.password) {
-      return res.status(400).json({ error: 'Wrong Password!' });
+      return res.status(401).send({ error: 'Unauthorized' });
     }
     const tok = uuidv4();
     const key = `auth_${tok}`;
