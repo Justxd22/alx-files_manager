@@ -14,8 +14,8 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "body-parser": "^1.20.2",
         "bull": "^3.16.0",
+        "body-parser": "^1.20.2",
         "chai-http": "^4.3.0",
         "express": "^4.17.1",
         "image-thumbnail": "^1.0.10",
