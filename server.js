@@ -1,7 +1,6 @@
 import express from 'express';
+import bodyParser from 'body-parser';
 import routes from './routes/index';
-
-const bodyParser = require('body-parser');
 
 const app = express();
 const port = process.env.PORT || 5000;
